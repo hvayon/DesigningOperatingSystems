@@ -51,13 +51,13 @@ build cmake_object_order_depends_target_slab_allocator: phony || .
 
 build CMakeFiles/slab_allocator.dir/main.c.o: C_COMPILER__slab_allocator_unscanned_Debug /Users/natalia/Documents/Учеба$ МГТУ$ им.$ Баумана/3$ семестр/Операционные$ системы/slab_allocator/main.c || cmake_object_order_depends_target_slab_allocator
   DEP_FILE = CMakeFiles/slab_allocator.dir/main.c.o.d
-  FLAGS = -g -std=gnu99 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk -mmacosx-version-min=15.0 -fcolor-diagnostics
+  FLAGS = -g -std=gnu11 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk -mmacosx-version-min=15.0 -fcolor-diagnostics
   OBJECT_DIR = CMakeFiles/slab_allocator.dir
   OBJECT_FILE_DIR = CMakeFiles/slab_allocator.dir
 
 build CMakeFiles/slab_allocator.dir/slab.c.o: C_COMPILER__slab_allocator_unscanned_Debug /Users/natalia/Documents/Учеба$ МГТУ$ им.$ Баумана/3$ семестр/Операционные$ системы/slab_allocator/slab.c || cmake_object_order_depends_target_slab_allocator
   DEP_FILE = CMakeFiles/slab_allocator.dir/slab.c.o.d
-  FLAGS = -g -std=gnu99 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk -mmacosx-version-min=15.0 -fcolor-diagnostics
+  FLAGS = -g -std=gnu11 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk -mmacosx-version-min=15.0 -fcolor-diagnostics
   OBJECT_DIR = CMakeFiles/slab_allocator.dir
   OBJECT_FILE_DIR = CMakeFiles/slab_allocator.dir
 

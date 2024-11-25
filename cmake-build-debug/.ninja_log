@@ -1,2 +1,5 @@
 # ninja log v6
-16	827	1732446173677510137	CMakeFiles/slab_allocator.dir/main.c.o	acc89329743adb8b
+1023	1458	1732564055204057844	slab_allocator	df0854cb2754eb44
+12	952	1732547249497356630	CMakeFiles/slab_allocator.dir/slab.c.o	8bad79181a2eb4d9
+8	280	1732564188158145724	build.ninja	ce1e9a8f935d7e31
+10	1022	1732564054191907583	CMakeFiles/slab_allocator.dir/main.c.o	acc89329743adb8b

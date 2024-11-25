@@ -1,4 +1,4 @@
 /Applications/CLion.app/Contents/bin/cmake/mac/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/x64/ninja -G Ninja -S "/Users/natalia/Documents/Учеба МГТУ им. Баумана/3 семестр/Операционные системы/slab_allocator" -B "/Users/natalia/Documents/Учеба МГТУ им. Баумана/3 семестр/Операционные системы/slab_allocator/cmake-build-debug"
--- Configuring done (0.1s)
--- Generating done (0.0s)
+-- Configuring done (0.2s)
+-- Generating done (0.1s)
 -- Build files have been written to: /Users/natalia/Documents/Учеба МГТУ им. Баумана/3 семестр/Операционные системы/slab_allocator/cmake-build-debug

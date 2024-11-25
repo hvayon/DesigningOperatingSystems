@@ -69,16 +69,15 @@ void *kmem_cache_alloc(kmem_cache_t *cp)
 	
 	while(tmp_sl)
 	{
-		if (tmp_sl->free_chunks_begin == NULL)
-			tmp_sl = tmp_sl->next;
-		else
+		// if (tmp_sl->free_chunks_begin == NULL)
+		// 	tmp_sl = tmp_sl->next;
 		{
 			chunk_t *ret_chunk = tmp_sl->free_chunks_begin;
 
 			tmp_sl->free_chunks_begin = ret_chunk->next_chunk;
 			ret_chunk->next_chunk = tmp_sl->busy_chunks_begin;
 			if (ret_chunk->next_chunk)
-				ret_chunk->next_chunk->prev_chunk = ret_chunk;
+				ret_chunk->next_chunk->prev_chunk = ret_chunk; // вставляем в список
 
 			ret_chunk->prev_chunk = NULL;
 
@@ -164,14 +163,14 @@ void *kmem_cache_free(kmem_cache_t *cp, void *buf)
 
 slab_t* newslab_add(unsigned int size)
 {	
-	slab_t *sl = (slab_t*)calloc(1, sizeof(slab_t));
+	slab_t *sl = (slab_t *)calloc(1, sizeof(slab_t));
 	if (!sl)
 		return NULL;
 	
 	/* инициализация кусков chunks */
 	sl->chunks = (char *)calloc(MAX_CHUNKS, sizeof(chunk_t) + size);
 
-	sl->free_chunks_begin = (chunk_t *)sl->chunks;
+	sl->free_chunks_begin = (chunk_t *)sl->chunks; // указывает на sl->chunks так как все свободные
 
 	for (int i = 0; i < MAX_CHUNKS; i++)
 	{
@@ -234,11 +233,11 @@ int slab_free(slabs_t *sls, slab_t *sl, kmem_cache_t *cc)
 }
 
 void statistic(int id)
-{		
-	kmem_cache_t *cc = cache_chain;
+{
+	const kmem_cache_t *cc = cache_chain;
 	
 	slab_t *sl;
-	int count;
+	//int count;
 	
 	while(cc){
 		if(cc->id != id && id != 0) {
@@ -253,24 +252,26 @@ void statistic(int id)
 		
 		if(cc->slabs_full_head != NULL){
 			sl = cc->slabs_full_head->slab_head;
+			int i = 1;
 			while(sl){
-				printf("\t\t||Slab:\n");
-				size_t real_chunk_size = sizeof(slab_t *) + cc->size;
+				printf("\t\t[%d]Slab:\n", i);
+				//size_t real_chunk_size = sizeof(slab_t *) + cc->size;
 
 				printf("\t\t\tFree chunk indexes: ");
 				for (chunk_t *free_chunk = sl->free_chunks_begin; free_chunk; free_chunk = free_chunk->next_chunk)
-					printf("%ud ", free_chunk - sl->chunks);
+					printf("%ld ", (char *)free_chunk - sl->chunks);
 
 				printf("\n");
 
 				printf("\t\t\tBusy chunk indexes: ");
 				for (chunk_t* busy_chunk = sl->busy_chunks_begin; busy_chunk; busy_chunk = busy_chunk->next_chunk)
-					printf("%ud ", busy_chunk - sl->chunks);
+					printf("%ld ", (char *) busy_chunk - sl->chunks);
 
 				printf("\n");
 				//printf("%d chunks_used", sl->offset / real_chunk_size);
 				printf("\n");
 				sl = sl->next;
+				i++;
 			}
 		}
 		// partial
@@ -278,22 +279,24 @@ void statistic(int id)
 		
 		if(cc->slabs_partial_head != NULL){ 
 			sl = cc->slabs_partial_head->slab_head;
+			int i = 1;
 			while (sl) {
-				printf("\t\t||Slab:\n");
-				size_t real_chunk_size = sizeof(slab_t*) + cc->size;
+				printf("\t\t[%d]Slab:\n", i);
+				//size_t real_chunk_size = sizeof(slab_t*) + cc->size;
 				printf("\t\t\tFree chunk indexes: ");
 				for (chunk_t* free_chunk = sl->free_chunks_begin; free_chunk; free_chunk = free_chunk->next_chunk)
-					printf("%ud ", free_chunk - sl->chunks);
+					printf("%ld ", (char *) free_chunk - sl->chunks);
 
 				printf("\n");
 
 				printf("\t\t\tBusy chunk indexes: ");
 				for (chunk_t* busy_chunk = sl->busy_chunks_begin; busy_chunk; busy_chunk = busy_chunk->next_chunk)
-					printf("%ud ", busy_chunk - sl->chunks);
+					printf("%ld ", (char *) busy_chunk - sl->chunks);
 
 				printf("\n");
 				printf("\n");
 				sl = sl->next;
+				i++;
 			}
 		}
 		
