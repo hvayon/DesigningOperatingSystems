@@ -29,16 +29,19 @@ void test1() {
 
 	for (int i = 0; i < MAX_CHUNKS + 1; i++)
 	{
-		statistic(cache_id);
 		p[i] = kmem_cache_alloc(cc);
+		statistic(cache_id);
 	}
-	ECHO("");
+	ECHO("*********  start free ********* ");
 	for (int i = 0; i < MAX_CHUNKS + 1; i++)
 	{
-		kmem_cache_free(cc, p[i]);
+		kmem_cache_free(cc, p[MAX_CHUNKS - i]);
 		statistic(cache_id);
 	}
-	print_cache_free(cc);
+
+	ECHO("********* After free *********");
+	statistic(cache_id);
+	ECHO("");;
 }
 
 // полное заполнение кеша
@@ -94,31 +97,41 @@ void test2()
 	print_cache_free(tmp);
 }
 
+void test3()
+{
+		void* p[MAX_CHUNKS + 1];
+		int min_cache_size = 4;
+		int cache_size = 8;
+
+
+		int cache_id = cache_size/ min_cache_size;
+
+		/* инициализация кэша начинается с 4, 4*2, 4*2^2, ..., 4*2^20 */
+		kmem_cache_init(2, min_cache_size, 4*1024*1024); //4*1024*1024
+
+		kmem_cache_t* cc = kmem_cache_create(cache_size);
+
+		for (int i = 0; i < MAX_CHUNKS + 1; i++)
+		{
+			p[i] = kmem_cache_alloc(cc);
+			statistic(cache_id);
+		}
+		ECHO("*********  start free ********* ");
+		for (int i = 0; i < MAX_CHUNKS + 1; i++)
+		{
+			kmem_cache_free(cc, p[MAX_CHUNKS - i]);
+			statistic(cache_id);
+		}
+
+		ECHO("********* After free *********");
+		statistic(cache_id);
+		ECHO("");
+}
 int main()
-{	
-	// /* адрес выделяемой вами памяти*/
-	// void* p[MAX_CHUNKS];
-	// kmem_cache_t *cc;
-	//
-	// int min_cache_size = 4;
-	// /* инициализация кэша начинается с 4, 4*2, 4*2^2, ..., 4*2^20 */
-	// kmem_cache_init(2, min_cache_size, 8); //4*1024*1024
-	//
-	// int cache_size = 4;
-	// /* экземпляр кеша */
-	// cc = kmem_cache_create(cache_size);
-	//
-	// int cache_id = cache_size/min_cache_size; // номер кэша, в котором выделяются слабы
-	// //test1(p, cc, cache_id); // два слаба
-
-	test1();
-	//test2();
-
-	// /* статистика кэша после освобождения памяти */
-	// ECHO("********* After free *********");
-	// statistic(cache_id);
-	// //statistic(0);
-	// ECHO("");
+{
+	 test1();
+	 test2();
+	 test3();
 	
 	
 	return 0;

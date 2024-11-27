@@ -62,33 +62,38 @@ void *kmem_cache_alloc(kmem_cache_t *cp)
 	slab_t* tmp_sl;
 
 	if(cp == NULL) return ((void *)0);
-	
-	/* значение slab равно null, что означает, что это первый объект, сохраненный в этом slab */
 
+	// Попытка найти свободный chunk в частично заполненных slab'ах
 	tmp_sl = cp->slabs_partial_head->slab_head;
-	
+
 	while(tmp_sl)
 	{
 		// if (tmp_sl->free_chunks_begin == NULL)
 		// 	tmp_sl = tmp_sl->next;
 		{
+			// Берём первый свободный chunk
 			chunk_t *ret_chunk = tmp_sl->free_chunks_begin;
 
+			// Обновляем указатель на следующий свободный chunk
 			tmp_sl->free_chunks_begin = ret_chunk->next_chunk;
+			// Добавляем выделенный chunk в начало списка занятых chunk'ов
 			ret_chunk->next_chunk = tmp_sl->busy_chunks_begin;
 			if (ret_chunk->next_chunk)
 				ret_chunk->next_chunk->prev_chunk = ret_chunk; // вставляем в список
 
+			// Устанавливаем prev_chunk выделенного chunk'а в NULL
 			ret_chunk->prev_chunk = NULL;
-
+			// Обновляем указатель на начало списка занятых chunk'ов
 			tmp_sl->busy_chunks_begin = ret_chunk;
 
+			// Если после выделения chunk'а slab стал полностью заполненным,
+			// перемещаем его из списка частично заполненных в список полностью заполненных
 			if (tmp_sl->free_chunks_begin == NULL)
 			{
 				slab_queue_remove(cp->slabs_partial_head, tmp_sl);
 				slab_queue_add   (cp->slabs_full_head   , tmp_sl);
 			}
-
+			// Возвращаем данные выделенного chunk'а
 			return ret_chunk->data;
 		}
 	}
@@ -118,14 +123,14 @@ void *kmem_cache_alloc(kmem_cache_t *cp)
 
 		return ret_chunk->data;
 	}
-	
+
 	/* нет свободного места */
 	return NULL;
-	
+
 }
 
 void *kmem_cache_free(kmem_cache_t *cp, void *buf)
-{	
+{
 	if (!buf)
 		return NULL;
 
@@ -139,14 +144,18 @@ void *kmem_cache_free(kmem_cache_t *cp, void *buf)
 	if (chunk_ptr->prev_chunk)
 		chunk_ptr->prev_chunk->next_chunk = chunk_ptr->next_chunk;
 	else
+	{
 		slab_ptr->busy_chunks_begin = chunk_ptr->next_chunk;
+		if (slab_ptr->busy_chunks_begin)
+			slab_ptr->busy_chunks_begin->prev_chunk = NULL;
+	}
 
 
 	chunk_t* tmp = slab_ptr->free_chunks_begin;
 	slab_ptr->free_chunks_begin = chunk_ptr;
+	chunk_ptr->next_chunk = tmp;
 	if (tmp)
 	{
-		chunk_ptr->next_chunk = tmp;
 		tmp->prev_chunk = chunk_ptr;
 	}
 
@@ -161,29 +170,40 @@ void *kmem_cache_free(kmem_cache_t *cp, void *buf)
 		slab_queue_add(cp->slabs_partial_head, slab_ptr);
 }
 
+// Функция для создания нового slab'а (блока памяти) размером `size`
 slab_t* newslab_add(unsigned int size)
-{	
+{
+	// Выделяем память под структуру slab_t и обнуляем её содержимое
 	slab_t *sl = (slab_t *)calloc(1, sizeof(slab_t));
+
 	if (!sl)
-		return NULL;
-	
-	/* инициализация кусков chunks */
+		return NULL; // Если выделение памяти не удалось, возвращаем NULL
+
+	/* Инициализируем массив chunk'ов (кусков памяти), каждый из которых имеет размер
+	   `sizeof(chunk_t)` плюс переданный размер `size` */
 	sl->chunks = (char *)calloc(MAX_CHUNKS, sizeof(chunk_t) + size);
 
-	sl->free_chunks_begin = (chunk_t *)sl->chunks; // указывает на sl->chunks так как все свободные
+	// Указатель на начало свободных chunk'ов
+	sl->free_chunks_begin = (chunk_t *)sl->chunks; // Все chunk'и пока свободны
 
-	for (int i = 0; i < MAX_CHUNKS; i++)
-	{
+	for (int i = 0; i < MAX_CHUNKS; i++) {
+		// Получаем текущий chunk, смещая указатель на соответствующее количество байт
 		chunk_t* cur_chunk = sl->chunks + (i) * (sizeof(chunk_t) + size);
+
+		// Устанавливаем ссылку на предыдущий chunk, если он есть
 		if (i >= 1)
 			cur_chunk->prev_chunk = sl->chunks + (i - 1) * (sizeof(chunk_t) + size);
+
+		// Устанавливаем ссылку на следующий chunk, если он есть
 		if (i < MAX_CHUNKS - 1)
 			cur_chunk->next_chunk = sl->chunks + (i + 1) * (sizeof(chunk_t) + size);
 
+		// Сохраняем указатель на родительский slab
 		cur_chunk->slab_ptr = sl;
 	}
-	
-	return sl;	
+
+	// Возвращаем созданный slab
+	return sl;
 }
 
 int slab_queue_add(slabs_t *sls, slab_t *sl)
